@@ -1,29 +1,29 @@
 import React, { useState, useEffect, useRef } from 'react';
 
 function App() {
-  const [messages, setMessages] = useState([
-    { sender: 'bot', text: 'Hello! Ask me anything based on the documents.' }
-  ]);
-  const [input, setInput] = useState('');
-  const [loading, setLoading] = useState(false);
+    const [messages, setMessages] = useState([
+      { sender: 'bot', text: 'Hello! Ask me anything based on the documents.' }
+    ]);
+    const [input, setInput] = useState('');
+    const [loading, setLoading] = useState(false);
 
-  // Generate and store session_id once per app load
-  const [sessionId, setSessionId] = useState('');
-  const messagesEndRef = useRef(null);
+    // Generate and store session_id once per app load
+    const [sessionId, setSessionId] = useState('');
+    const messagesEndRef = useRef(null);
 
-  useEffect(() => {
-    if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
-    }
-  }, [messages]);
+    useEffect(() => {
+      if (messagesEndRef.current) {
+        messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+      }
+    }, [messages]);
 
-  useEffect(() => {
-    // Simple random session ID generator (can be improved with UUID lib)
-    const id = Math.random().toString(36).substr(2, 9);
-    setSessionId(id);
-  }, []);
+    useEffect(() => {
+      // Simple random session ID generator (can be improved with UUID lib)
+      const id = Math.random().toString(36).substr(2, 9);
+      setSessionId(id);
+    }, []);
 
-  const sendMessage = async () => {
+    const sendMessage = async () => {
     if (!input.trim()) return;
 
     const userMessage = { sender: 'user', text: input };
@@ -32,7 +32,7 @@ function App() {
     setLoading(true);
 
     try {
-      const response = await fetch(`http://localhost:8000/chat?session_id=${sessionId}`, {
+      const response = await fetch(`https://doc-chat-ea9c.onrender.com/chat?session_id=${sessionId}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ question: input }),
@@ -52,6 +52,7 @@ function App() {
       setLoading(false);
     }
   };
+
 
   const handleKeyDown = (e) => {
     if (e.key === 'Enter' && !loading) {

@@ -12,7 +12,7 @@ from pathlib import Path
 app = FastAPI()
 
 origins = [
-    "https://doc-chat-nu.vercel.app",
+    "https://doc-chat-nu.vercel.app",  # Your frontend URL
 ]
 
 app.add_middleware(
@@ -58,6 +58,10 @@ class QueryRequest(BaseModel):
     question: str
 
 chat_histories = {}
+
+@app.get("/")
+async def root():
+    return {"message": "Doc Chat backend is running!"}
 
 @app.post("/chat")
 async def chat(request: QueryRequest, session_id: str = Query(...)):
