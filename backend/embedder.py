@@ -9,6 +9,8 @@ from PyPDF2 import PdfReader
 import docx
 from urllib.parse import urlparse
 
+MAX_TOTAL_CHARS = 1050000 
+
 def download_file_from_url(url):
     try:
         response = requests.get(url, timeout=10)
@@ -21,7 +23,7 @@ def download_file_from_url(url):
         temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=ext)
         temp_file.write(response.content)
         temp_file.close()
-        return temp_file.name, ext[1:]  # remove dot
+        return temp_file.name, ext[1:]
     except Exception as e:
         print(f"Failed to download {url}: {e}")
         return None, None
@@ -43,6 +45,8 @@ def extract_content(filepath, ext):
 
 def load_texts_from_docs_folder(folder_path="docs"):
     texts = []
+    total_chars = 0
+
     for filename in os.listdir(folder_path):
         filepath = os.path.join(folder_path, filename)
         if not os.path.isfile(filepath):
@@ -58,17 +62,27 @@ def load_texts_from_docs_folder(folder_path="docs"):
                         downloaded_path, file_ext = download_file_from_url(line)
                         if downloaded_path:
                             content = extract_content(downloaded_path, file_ext)
-                            if content.strip():
-                                texts.append(content)
                             os.remove(downloaded_path)
+                        else:
+                            content = ""
                     else:
-                        texts.append(line)
+                        content = line
+
+                    if total_chars + len(content) > MAX_TOTAL_CHARS:
+                        return texts
+                    if content.strip():
+                        texts.append(content)
+                        total_chars += len(content)
         elif ext in ["pdf", "docx"]:
             content = extract_content(filepath, ext)
+            if total_chars + len(content) > MAX_TOTAL_CHARS:
+                return texts
             if content.strip():
                 texts.append(content)
+                total_chars += len(content)
         else:
             print(f"Skipping unsupported file: {filename}")
+
     return texts
 
 def main():
@@ -78,8 +92,7 @@ def main():
         raise ValueError("OPENAI_SECRET_KEY not found in environment")
 
     texts = load_texts_from_docs_folder("docs")
-
-    text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=100)
+    text_splitter = RecursiveCharacterTextSplitter(chunk_size=5000, chunk_overlap=100)
     chunks = []
     for t in texts:
         chunks.extend(text_splitter.split_text(t))
@@ -88,7 +101,10 @@ def main():
     vectorstore = FAISS.from_texts(chunks, embeddings)
     vectorstore.save_local("faiss_index")
 
-    print("Embedding complete. Index saved.")
+    faiss_size = os.path.getsize("faiss_index/index.faiss")
+    pkl_size = os.path.getsize("faiss_index/index.pkl")
+    total_size_mb = (faiss_size + pkl_size) / 1024 / 1024
+    print(f"Embedding complete. Index saved. Total size: {total_size_mb:.2f} MB")
 
 if __name__ == "__main__":
     main()
