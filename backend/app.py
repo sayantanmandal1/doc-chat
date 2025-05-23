@@ -30,8 +30,8 @@ if not api_key:
     raise ValueError("OPENAI_SECRET_KEY not set in .env")
 
 # Supabase FAISS URLs
-FAISS_URL = "https://kzqnsdmbbpftbbzhvvqr.supabase.co/storage/v1/object/public/faiss-index/index.faiss"
-PKL_URL = "https://kzqnsdmbbpftbbzhvvqr.supabase.co/storage/v1/object/public/faiss-index/index.pkl"
+FAISS_URL = "https://kzqnsdmbbpftbbzhvvqr.supabase.co/storage/v1/object/public/faiss-index/index (1).faiss"
+PKL_URL = "https://kzqnsdmbbpftbbzhvvqr.supabase.co/storage/v1/object/public/faiss-index/index (1).pkl"
 
 # Temp directory to store downloaded files
 TEMP_DIR = "faiss_temp"
