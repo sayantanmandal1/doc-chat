@@ -2,11 +2,10 @@ import React, { useState, useEffect, useRef } from 'react';
 
 function App() {
   const [messages, setMessages] = useState([
-    { sender: 'bot', text: 'Hello! Ask me anything based on the documents.' }
+    { sender: 'bot', text: 'Hello! Ask me anything based on the documents.', timestamp: new Date() }
   ]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
-  const [typing, setTyping] = useState(false);
   const [sessionId, setSessionId] = useState('');
   const messagesEndRef = useRef(null);
 
@@ -19,16 +18,19 @@ function App() {
     if (messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
     }
-  }, [messages, typing]);
+  }, [messages]);
 
   const sendMessage = async () => {
     if (!input.trim()) return;
 
-    const userMessage = { sender: 'user', text: input };
+    const userMessage = { sender: 'user', text: input, timestamp: new Date() };
     setMessages((msgs) => [...msgs, userMessage]);
     setInput('');
     setLoading(true);
-    setTyping(true);
+
+    // Typing indicator
+    const typingIndicator = { sender: 'bot', typing: true };
+    setMessages((msgs) => [...msgs, typingIndicator]);
 
     try {
       const response = await fetch(`https://doc-chat-ea9c.onrender.com/chat?session_id=${sessionId}`, {
@@ -37,57 +39,52 @@ function App() {
         body: JSON.stringify({ question: input }),
       });
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
+      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
 
       const data = await response.json();
-      const answer = data.answer || 'Sorry, no answer.';
+      const botMessage = {
+        sender: 'bot',
+        text: data.answer || 'Sorry, no answer.',
+        timestamp: new Date(),
+      };
 
-      // Simulate typing delay
-      setTimeout(() => {
-        const botMessage = { sender: 'bot', text: answer };
-        setMessages((msgs) => [...msgs, botMessage]);
-        setTyping(false);
-      }, 1200); // delay to simulate typing
-
+      setMessages((msgs) => [...msgs.filter((m) => !m.typing), botMessage]);
     } catch (error) {
-      setMessages((msgs) => [...msgs, { sender: 'bot', text: 'Error connecting to backend.' }]);
+      setMessages((msgs) => [...msgs.filter((m) => !m.typing), {
+        sender: 'bot',
+        text: 'Error connecting to backend.',
+        timestamp: new Date()
+      }]);
       console.error('Error:', error);
-      setTyping(false);
     } finally {
       setLoading(false);
     }
   };
 
   const handleKeyDown = (e) => {
-    if (e.key === 'Enter' && !loading) {
-      sendMessage();
-    }
+    if (e.key === 'Enter' && !loading) sendMessage();
   };
+
+  const formatTime = (date) => new Date(date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
   return (
     <div style={{
-      maxWidth: '600px',
+      maxWidth: 600,
       margin: 'auto',
       height: '100vh',
       display: 'flex',
       flexDirection: 'column',
-      fontFamily: 'Inter, Segoe UI, sans-serif',
-      backgroundColor: '#f4f7fa',
-      border: '1px solid #ddd',
-      borderRadius: '12px',
-      overflow: 'hidden',
-      boxShadow: '0 4px 20px rgba(0,0,0,0.05)'
+      fontFamily: 'Segoe UI, sans-serif',
+      backgroundColor: '#ece5dd',
+      border: '1px solid #ccc'
     }}>
       <div style={{
         padding: '1rem',
-        backgroundColor: '#2f80ed',
+        backgroundColor: '#075e54',
         color: '#fff',
-        fontSize: '1.2rem',
-        fontWeight: '600',
         textAlign: 'center',
-        letterSpacing: '0.5px'
+        fontSize: '1.2rem',
+        fontWeight: 'bold'
       }}>
         📄 Document Chatbot
       </div>
@@ -95,78 +92,73 @@ function App() {
       <div style={{
         flex: 1,
         overflowY: 'auto',
-        padding: '1rem',
-        backgroundColor: '#f9fbfd',
         display: 'flex',
         flexDirection: 'column',
-        gap: '1rem'
+        padding: '1rem',
+        gap: '0.5rem'
       }}>
         {messages.map((msg, idx) => (
-          <div
-            key={idx}
-            style={{
-              alignSelf: msg.sender === 'user' ? 'flex-end' : 'flex-start',
-              maxWidth: '75%',
-              animation: 'fadeIn 0.3s ease-in-out'
-            }}
-          >
+          <div key={idx} style={{
+            alignSelf: msg.sender === 'user' ? 'flex-end' : 'flex-start',
+            maxWidth: '75%',
+            display: 'flex',
+            flexDirection: 'column'
+          }}>
             <div style={{
-              backgroundColor: msg.sender === 'user' ? '#2f80ed' : '#e6eef5',
-              color: msg.sender === 'user' ? '#fff' : '#333',
-              padding: '0.75rem 1rem',
-              borderRadius: '20px',
-              borderBottomRightRadius: msg.sender === 'user' ? '4px' : '20px',
-              borderBottomLeftRadius: msg.sender === 'user' ? '20px' : '4px',
-              whiteSpace: 'pre-wrap',
-              boxShadow: '0 2px 6px rgba(0,0,0,0.05)',
-              transition: 'all 0.3s ease'
+              backgroundColor: msg.sender === 'user' ? '#dcf8c6' : '#fff',
+              color: '#000',
+              padding: '0.5rem 0.75rem',
+              borderRadius: '7.5px',
+              borderTopLeftRadius: msg.sender === 'user' ? '7.5px' : '0',
+              borderTopRightRadius: msg.sender === 'user' ? '0' : '7.5px',
+              boxShadow: '0 1px 1px rgba(0,0,0,0.1)',
+              position: 'relative'
             }}>
-              {msg.text}
+              {msg.typing ? (
+                <div style={{
+                  display: 'flex',
+                  gap: 4,
+                  alignItems: 'center',
+                  height: 20
+                }}>
+                  <span className="dot" />
+                  <span className="dot" />
+                  <span className="dot" />
+                </div>
+              ) : (
+                <div>{msg.text}</div>
+              )}
             </div>
+            {!msg.typing && (
+              <div style={{ fontSize: '0.75rem', color: '#555', textAlign: msg.sender === 'user' ? 'right' : 'left' }}>
+                {formatTime(msg.timestamp)}
+              </div>
+            )}
           </div>
         ))}
-
-        {typing && (
-          <div style={{
-            alignSelf: 'flex-start',
-            backgroundColor: '#e6eef5',
-            color: '#333',
-            padding: '0.75rem 1rem',
-            borderRadius: '20px',
-            maxWidth: '60%',
-            boxShadow: '0 2px 6px rgba(0,0,0,0.05)',
-            fontStyle: 'italic',
-            opacity: 0.8
-          }}>
-            Typing...
-          </div>
-        )}
-
         <div ref={messagesEndRef} />
       </div>
 
       <div style={{
         padding: '0.75rem',
         display: 'flex',
-        backgroundColor: '#fff',
-        borderTop: '1px solid #ddd'
+        backgroundColor: '#f0f0f0',
+        borderTop: '1px solid #ccc'
       }}>
         <input
           type="text"
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={handleKeyDown}
-          placeholder="Ask a question..."
+          placeholder="Type your question..."
           disabled={loading}
           style={{
             flex: 1,
             padding: '0.75rem 1rem',
             fontSize: '1rem',
-            borderRadius: '30px',
+            borderRadius: '20px',
             border: '1px solid #ccc',
-            outline: 'none',
-            transition: 'border 0.3s',
-            boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.05)'
+            outline: 'none'
           }}
         />
         <button
@@ -176,18 +168,43 @@ function App() {
             marginLeft: '0.75rem',
             padding: '0.75rem 1.25rem',
             fontSize: '1rem',
-            backgroundColor: '#2f80ed',
+            backgroundColor: '#25D366',
             color: '#fff',
             border: 'none',
-            borderRadius: '30px',
-            cursor: loading ? 'not-allowed' : 'pointer',
-            opacity: loading ? 0.6 : 1,
-            transition: 'background 0.3s'
+            borderRadius: '20px',
+            cursor: 'pointer'
           }}
         >
           {loading ? '...' : 'Send'}
         </button>
       </div>
+
+      {/* Typing dots animation */}
+      <style>
+        {`
+          .dot {
+            width: 6px;
+            height: 6px;
+            background-color: #aaa;
+            border-radius: 50%;
+            animation: blink 1.4s infinite both;
+          }
+          .dot:nth-child(2) {
+            animation-delay: 0.2s;
+          }
+          .dot:nth-child(3) {
+            animation-delay: 0.4s;
+          }
+          @keyframes blink {
+            0%, 80%, 100% {
+              opacity: 0;
+            }
+            40% {
+              opacity: 1;
+            }
+          }
+        `}
+      </style>
     </div>
   );
 }
