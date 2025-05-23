@@ -1,0 +1,18 @@
+backend/.env
+backend/faiss_index/
+pycache/
+*.pyc
+.DS_Store
+# Backend
+backend/__pycache__/
+backend/.env
+backend/faiss_index/
+
+# Frontend
+frontend/node_modules/
+frontend/.env
+
+# General
+*.pyc
+.DS_Store
+.env
