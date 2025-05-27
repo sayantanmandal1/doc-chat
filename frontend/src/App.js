@@ -1,5 +1,57 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Send, FileText, Sparkles, MessageCircle, Pause, Play, Square } from 'lucide-react';
+
+// Custom SVG Icons
+const SendIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <line x1="22" y1="2" x2="11" y2="13"></line>
+    <polygon points="22,2 15,22 11,13 2,9 22,2"></polygon>
+  </svg>
+);
+
+const FileTextIcon = () => (
+  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2Z"></path>
+    <polyline points="14,2 14,8 20,8"></polyline>
+    <line x1="16" y1="13" x2="8" y2="13"></line>
+    <line x1="16" y1="17" x2="8" y2="17"></line>
+    <polyline points="10,9 9,9 8,9"></polyline>
+  </svg>
+);
+
+const SparklesIcon = () => (
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"></path>
+    <path d="M5 3v4"></path>
+    <path d="M19 17v4"></path>
+    <path d="M3 5h4"></path>
+    <path d="M17 19h4"></path>
+  </svg>
+);
+
+const MessageCircleIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="m3 21 1.9-5.7a8.5 8.5 0 1 1 3.8 3.8z"></path>
+  </svg>
+);
+
+const PauseIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="6" y="4" width="4" height="16"></rect>
+    <rect x="14" y="4" width="4" height="16"></rect>
+  </svg>
+);
+
+const PlayIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <polygon points="5,3 19,12 5,21 5,3"></polygon>
+  </svg>
+);
+
+const SquareIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+  </svg>
+);
 
 function App() {
   const [messages, setMessages] = useState([
@@ -300,11 +352,13 @@ function App() {
           <div className="header-glow p-6 relative">
             <div className="flex items-center justify-center space-x-3">
               <div className="relative">
-                <FileText className="w-8 h-8 text-white floating-icon" />
+                <FileTextIcon />
                 <div className="absolute inset-0 rounded-full bg-white opacity-20 pulse-ring"></div>
               </div>
               <h1 className="text-2xl font-bold text-white glow-text">Document Intelligence</h1>
-              <Sparkles className="w-6 h-6 text-white floating-icon" style={{ animationDelay: '1s' }} />
+              <div className="floating-icon" style={{ animationDelay: '1s' }}>
+                <SparklesIcon />
+              </div>
             </div>
             <p className="text-center text-white/80 mt-2 font-light">
               Powered by AI • Ask anything about your documents
@@ -358,7 +412,7 @@ function App() {
                   {msg.sender === 'user' ? (
                     <span className="text-white font-bold text-sm">U</span>
                   ) : (
-                    <MessageCircle className="w-5 h-5 text-white" />
+                    <MessageCircleIcon />
                   )}
                 </div>
               </div>
@@ -392,14 +446,14 @@ function App() {
                     className="send-button px-4 py-4 bg-gradient-to-r from-yellow-500 to-orange-500 text-white rounded-2xl font-semibold hover:from-yellow-600 hover:to-orange-600 focus:outline-none focus:ring-2 focus:ring-yellow-500/50"
                     title="Pause Response"
                   >
-                    <Pause className="w-5 h-5" />
+                    <PauseIcon />
                   </button>
                   <button
                     onClick={stopResponse}
                     className="send-button px-4 py-4 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-2xl font-semibold hover:from-red-600 hover:to-red-700 focus:outline-none focus:ring-2 focus:ring-red-500/50"
                     title="Stop Response"
                   >
-                    <Square className="w-5 h-5" />
+                    <SquareIcon />
                   </button>
                 </div>
               ) : paused ? (
@@ -409,7 +463,7 @@ function App() {
                   title="Resume Response"
                 >
                   <div className="flex items-center space-x-2">
-                    <Play className="w-5 h-5" />
+                    <PlayIcon />
                     <span>Resume</span>
                   </div>
                 </button>
@@ -426,7 +480,7 @@ function App() {
                     </div>
                   ) : (
                     <div className="flex items-center space-x-2">
-                      <Send className="w-5 h-5" />
+                      <SendIcon />
                       <span>Send</span>
                     </div>
                   )}
