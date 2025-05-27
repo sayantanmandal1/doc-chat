@@ -76,7 +76,7 @@ function App() {
             <div className="bot-avatar">
               <div className="avatar-ring"></div>
               <div className="avatar-core">
-                <span className="bot-icon">🤖</span>
+                <span className="bot-icon" role="img" aria-label="Robot assistant">🤖</span>
               </div>
               <div className="status-indicator"></div>
             </div>
