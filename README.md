@@ -52,7 +52,7 @@ npm start
 ## Sample Prompts (HDFC Life Insurance Policies)
 
 Try these example questions to get relevant answers from the chatbot based on your uploaded HDFC Life insurance documents:
-
+- Tell me about hdfc life policy.
 - What is the maturity benefit for the HDFC Life Easy Health Insurance Policy?
 - Explain the coverage details of the HDFC Life Group Term Life Policy.
 - What are the premium payment options for the HDFC Life Sampoorna Jeevan plan?
