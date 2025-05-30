@@ -1,5 +1,5 @@
 
-## doc-chat
+# doc-chat
 
 doc-chat is a document-based chatbot application that leverages advanced NLP and vector search techniques to allow users to interact with the contents of their documents seamlessly.
 
