@@ -9,7 +9,7 @@ backend/.env
 backend/faiss_index/
 
 # Frontend
-frontend/node_modules/
+node_modules/
 frontend/.env
 
 # General
